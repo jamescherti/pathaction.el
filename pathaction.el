@@ -1,4 +1,4 @@
-;;; pathaction.el --- Execute pathaction.yaml rules using pathaction  -*- lexical-binding: t; -*-
+;;; pathaction.el --- Execute the pathaction command-line tool from Emacs  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2025 James Cherti | https://www.jamescherti.com/contact/
 

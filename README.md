@@ -1,11 +1,15 @@
-# pathaction.el
+# pathaction.el - Execute the pathaction command-line tool from Emacs
 ![Build Status](https://github.com/jamescherti/pathaction.el/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/github/license/jamescherti/pathaction.el)
 ![](https://raw.githubusercontent.com/jamescherti/pathaction.el/main/.images/made-for-gnu-emacs.svg)
 
 Execute pathaction.yaml rules using the pathaction command-line tool.
 
-(The [pathaction](https://github.com/jamescherti/pathaction) command-line tool enables the execution of specific commands on targeted files or directories. Its key advantage lies in its flexibility, allowing users to handle various types of files simply by passing the file or directory as an argument to the `pathaction` tool. The tool uses a `.pathaction.yaml` rule-set file to determine which command to execute. Additionally, **Jinja2** templating can be employed in the rule-set file to further customize the commands.)
+(The [pathaction](https://github.com/jamescherti/pathaction) command-line tool enables the execution of specific commands on targeted files or directories. Its key advantage lies in its flexibility, allowing users to handle various types of files simply by passing the file or directory as an argument to the `pathaction` tool. The tool uses a `.pathaction.yaml` rule-set file to determine which command to execute. Additionally, Jinja2 templating can be employed in the rule-set file to further customize the commands.)
+
+## Requirements
+
+- The [pathaction](https://github.com/jamescherti/pathaction) command-line tool.
 
 ## Installation
 
@@ -78,4 +82,5 @@ This program is free software: you can redistribute it and/or modify it under th
 
 ## Links
 
-- [pathaction.el @GitHub](https://github.com/jamescherti/pathaction.el)
+- Emacs package: [pathaction.el @GitHub](https://github.com/jamescherti/pathaction.el)
+- Command-line tool: [pathaction](https://github.com/jamescherti/pathaction)
