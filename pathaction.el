@@ -6,7 +6,7 @@
 ;; Version: 0.9.9
 ;; URL: https://github.com/jamescherti/pathaction.el
 ;; Keywords: convenience
-;; Package-Requires: ((emacs "24.1"))
+;; Package-Requires: ((emacs "24.4"))
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; This file is free software; you can redistribute it and/or modify
@@ -28,12 +28,30 @@
 ;;; Code:
 
 (defgroup pathaction nil
-  "Execute pathaction.yaml rules using pathaction"
+  "Execute pathaction.yaml rules using pathaction."
   :group 'pathaction
   :prefix "pathaction-"
   :link '(url-link
           :tag "Github"
           "https://github.com/jamescherti/pathaction.el"))
+
+(defcustom pathaction-close-window t
+  "Determines whether the pathaction window is closed after execution.
+If non-nil, the pathaction window will be closed once execution is complete.
+
+When the pathaction operation is performed in the same window, it switches
+back to the previously displayed buffer instead of closing it."
+  :type 'boolean
+  :group 'pathaction)
+
+(defvar pathaction-after-create-buffer-hook nil
+  "Hooks to run after the pathaction buffer is created.
+This hook is executed from within the pathaction buffer, allowing for
+further customization or actions once the buffer is created.")
+
+;; Internal variables
+(defvar-local pathaction--initial-window nil)
+(defvar-local pathaction--enabled nil)
 
 (defun pathaction--message (&rest args)
   "Display a message with '[pathaction]' prepended.
@@ -45,15 +63,113 @@ The message is formatted with the provided arguments ARGS."
 The message is formatted with the provided arguments ARGS."
   (apply #'message (concat "[pathaction] Warning: " (car args)) (cdr args)))
 
+(defun pathaction-quit (&optional buffer)
+  "Quit pathaction that is running in BUFFER."
+  (unless buffer
+    (setq buffer (current-buffer)))
+  (when pathaction--enabled
+    (when pathaction-close-window
+      (if (eq pathaction--initial-window (selected-window))
+          (previous-buffer)
+        (when (> (length (window-list)) 1)
+          (delete-window))))
+    (kill-buffer buffer)
+    (setq pathaction--initial-window nil)
+    (setq pathaction--enabled nil)))
+
+(defun pathaction--ansi-term (command name)
+  "Run COMMAND using \\='ansi-term\\='.
+NAME is the buffer name (ansi-term prefix and suffix it with \\='*\\=')"
+  (let* ((term-buffer-process nil)
+         (initial-window (selected-window))
+         (term-buffer-name (ansi-term command name))
+         (term-buffer (get-buffer term-buffer-name)))
+    (when term-buffer
+      (setq term-buffer-process (get-buffer-process term-buffer)))
+    (when term-buffer-process
+      (when pathaction-after-create-buffer-hook
+        (with-current-buffer term-buffer
+          (run-hooks 'pathaction-after-create-buffer-hook)))
+      (with-current-buffer term-buffer
+        (setq pathaction--enabled t)
+        (setq pathaction--initial-window initial-window))
+      (set-process-sentinel term-buffer-process
+                            (lambda (_process event)
+                              (when (string-prefix-p "finished" event)
+                                (with-current-buffer term-buffer
+                                  (pathaction-quit))))))))
+
+(defun pathaction--buffer-path ()
+  "Return the full path of the current buffer.
+
+Returns:
+- The directory path if the buffer is in `dired-mode',
+- The full path to the file if the buffer is visiting a file,
+- Nil if neither condition is met."
+  (cond ((and (fboundp 'dired-current-directory)
+              (derived-mode-p 'dired-mode))
+         ;; Return the directory name
+         (dired-current-directory))
+
+        (t
+         (let ((file-name (buffer-file-name (buffer-base-buffer))))
+           (if file-name
+               ;; Return the file name
+               file-name
+             ;; Return nil if no condition is met
+             nil)))))
+
 ;;;###autoload
-(define-minor-mode pathaction-mode
-  "Toggle `pathaction-mode'."
-  :global t
-  :lighter " pathaction"
-  :group 'pathaction
-  (if pathaction-mode
-      t
-    t))
+(defun pathaction-edit ()
+  "Edit the pathaction.yaml file."
+  (interactive)
+  (let* ((file-list (shell-command-to-string "pathaction -l ."))
+         (file-list-lines (split-string file-list "\n" t))
+         (existing-files '())
+         (selected-file nil))
+    ;; Filter the list to keep only existing files
+    (dolist (file file-list-lines)
+      (when (and (not (string-empty-p file)) (file-exists-p file))
+        (push file existing-files)))
+
+    ;; Reverse to maintain original order
+    (setq existing-files (reverse existing-files))
+    (if existing-files
+        (progn
+          (setq selected-file (completing-read "Select a file: "
+                                               existing-files))
+          (find-file selected-file))
+      (error "No existing files available to edit"))))
+
+;;;###autoload
+(defun pathaction-run (tag)
+  "Execute a pathaction action identified by TAG.
+
+Prompts the user for a TAG to specify the action. If invoked in a file buffer,
+uses the file's directory as the target; if invoked in a Dired buffer, uses the
+Dired directory. Signals an error if invoked in an unsupported context.
+
+The command opens a terminal buffer named based on the TAG and the file or
+directory being processed."
+  (interactive "sAction: ")
+  (let ((file-name (pathaction--buffer-path)))
+    (unless file-name
+      (error "The command cannot be executed in the current mode"))
+    (let* ((directory (file-name-directory file-name))
+           (base-name (file-name-nondirectory file-name))
+           (command (when directory
+                      (concat "pathaction"
+                              " "
+                              "--confirm-after "
+                              "--tag "
+                              (shell-quote-argument tag)
+                              " "
+                              (shell-quote-argument directory)))))
+      (when command
+        (pathaction--ansi-term command
+                               (format "pathaction:%s-%s"
+                                       tag
+                                       base-name))))))
 
 (provide 'pathaction)
 ;;; pathaction.el ends here

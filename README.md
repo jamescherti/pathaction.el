@@ -3,7 +3,9 @@
 ![License](https://img.shields.io/github/license/jamescherti/pathaction.el)
 ![](https://raw.githubusercontent.com/jamescherti/pathaction.el/main/.images/made-for-gnu-emacs.svg)
 
-Execute pathaction.yaml rules using pathaction.
+Execute pathaction.yaml rules using the pathaction command-line tool.
+
+(The [pathaction](https://github.com/jamescherti/pathaction) command-line tool enables the execution of specific commands on targeted files or directories. Its key advantage lies in its flexibility, allowing users to handle various types of files simply by passing the file or directory as an argument to the `pathaction` tool. The tool uses a `.pathaction.yaml` rule-set file to determine which command to execute. Additionally, **Jinja2** templating can be employed in the rule-set file to further customize the commands.)
 
 ## Installation
 
@@ -31,6 +33,39 @@ To install `pathaction` with `use-package` and `:vc` (Emacs >= 30):
   :ensure t
   :vc (:url "https://github.com/jamescherti/pathaction.el"
        :rev :newest))
+```
+
+## Usage
+
+### Run
+
+To execute the `pathaction` actions that are tagged with `main`, you can use the following command:
+``` emacs-lisp
+(pathaction-run "main")
+```
+
+- **`pathaction-run`**: This is the main function for triggering `pathaction` actions.
+- **`"main"`**: This is the tag used to identify a specific action. The tag you provide to the function determines which set of actions will be executed. In this case, `"main"` refers to the actions that are specifically tagged with this name.
+
+### Edit the pathaction.yaml file
+
+To edit the `pathaction.yaml` file, use the following function, which will prompt you to select one of the `pathaction.yaml` files in the parent directories:
+
+```emacs-lisp
+(pathaction-edit)
+```
+
+## Frequently Asked Questions
+
+## How to make pathaction open a window under the current one?
+
+To configure `pathaction` to open its window under the current one, you can use the `display-buffer-alist` variable to customize how the `pathaction` buffer is displayed. Specifically, you can use the `display-buffer-at-bottom` action, which will display the buffer in a new window at the bottom of the current frame.
+
+Here's the code to do this:
+``` emacs-lisp
+(add-to-list 'display-buffer-alist '("\\*pathaction:"
+                                       (display-buffer-at-bottom)
+                                       (window-height . 0.33)))
 ```
 
 ## Author and License
