@@ -44,6 +44,15 @@ back to the previously displayed buffer instead of closing it."
   :type 'boolean
   :group 'pathaction)
 
+(defvar pathaction-term-function #'ansi-term
+  "The function used to create and execute the terminal.
+Defaults to `ansi-term'.
+
+- This function should return the terminal buffer.
+- This function takes the command to execute as the first argument and the name
+  of the buffer as the second argument.
+  Example: (function-name command buffername)")
+
 (defvar pathaction-after-create-buffer-hook nil
   "Hooks to run after the pathaction buffer is created.
 This hook is executed from the pathaction buffer, allowing further
@@ -75,14 +84,17 @@ If BUFFER is not provided, uses the current buffer."
 
     (kill-buffer buffer)))
 
-(defun pathaction--ansi-term (command name)
+(defun pathaction--ansi-term (command name term-function)
   "Run COMMAND using \\='ansi-term\\='.
-NAME is the buffer name (ansi-term prefix and suffix it with \\='*\\=')"
+NAME is the buffer name (ansi-term prefix and suffix it with \\='*\\=')
+TERM-FUNCTION is the function that executes a terminal."
   (let* ((term-buffer-process nil)
-         (term-buffer-name (ansi-term command name))
-         (term-buffer (get-buffer term-buffer-name)))
-    (when term-buffer
-      (setq term-buffer-process (get-buffer-process term-buffer)))
+         (term-buffer (funcall term-function command name)))
+    (unless (buffer-live-p term-buffer)
+      (error "The buffer %s returned by the %s function could not be found"
+             term-buffer term-function))
+
+    (setq term-buffer-process (get-buffer-process term-buffer))
 
     (when term-buffer-process
       (when pathaction-after-create-buffer-hook
@@ -164,7 +176,8 @@ directory being processed."
                               (shell-quote-argument directory)))))
       (when command
         (pathaction--ansi-term command
-                               (format "pathaction:%s-%s" tag base-name))))))
+                               (format "pathaction:%s-%s" tag base-name)
+                               pathaction-term-function)))))
 
 (provide 'pathaction)
 ;;; pathaction.el ends here
