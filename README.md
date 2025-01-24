@@ -43,7 +43,7 @@ To install `pathaction` with `use-package` and `:vc` (Emacs >= 30):
 
 ### Run
 
-To execute the `pathaction` actions that are tagged with `main`, you can use the following command:
+To execute the `pathaction` action that is tagged with `main`, you can call the following Emacs function:
 ``` emacs-lisp
 (pathaction-run "main")
 ```
@@ -83,4 +83,4 @@ This program is free software: you can redistribute it and/or modify it under th
 ## Links
 
 - Emacs package: [pathaction.el @GitHub](https://github.com/jamescherti/pathaction.el)
-- Command-line tool: [pathaction](https://github.com/jamescherti/pathaction)
+- Command-line tool (requirement): [pathaction](https://github.com/jamescherti/pathaction)
