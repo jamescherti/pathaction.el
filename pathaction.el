@@ -35,7 +35,7 @@
           :tag "Github"
           "https://github.com/jamescherti/pathaction.el"))
 
-(defcustom pathaction-close-window t
+(defcustom pathaction-close-window-after-execution t
   "Determines whether the pathaction window is closed after execution.
 If non-nil, the pathaction window will be closed once execution is complete.
 
@@ -69,7 +69,7 @@ If BUFFER is not provided, uses the current buffer."
   (unless buffer
     (setq buffer (current-buffer)))
   (when pathaction--enabled
-    (when pathaction-close-window
+    (when pathaction-close-window-after-execution
       (if (eq pathaction--initial-window (selected-window))
           (previous-buffer)
         (when (> (length (window-list)) 1)
