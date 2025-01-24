@@ -46,11 +46,10 @@ back to the previously displayed buffer instead of closing it."
 
 (defvar pathaction-after-create-buffer-hook nil
   "Hooks to run after the pathaction buffer is created.
-This hook is executed within the pathaction buffer, allowing further
+This hook is executed from the pathaction buffer, allowing further
 customization or actions once the buffer is ready.")
 
 ;; Internal variables
-(defvar-local pathaction--initial-window nil)
 (defvar-local pathaction--enabled nil)
 
 (defun pathaction--message (&rest args)
@@ -66,34 +65,33 @@ The message is formatted with the provided arguments ARGS."
 (defun pathaction-quit (&optional buffer)
   "Quit pathaction running in BUFFER.
 If BUFFER is not provided, uses the current buffer."
-  (unless buffer
-    (setq buffer (current-buffer)))
   (when pathaction--enabled
-    (when pathaction-close-window-after-execution
-      (if (eq pathaction--initial-window (selected-window))
-          (previous-buffer)
-        (when (> (length (window-list)) 1)
-          (delete-window))))
-    (kill-buffer buffer)
-    (setq pathaction--initial-window nil)
-    (setq pathaction--enabled nil)))
+    (unless buffer
+      (setq buffer (current-buffer)))
+
+    (when (and pathaction-close-window-after-execution
+               (> (length (window-list)) 1))
+      (delete-window))
+
+    (kill-buffer buffer)))
 
 (defun pathaction--ansi-term (command name)
   "Run COMMAND using \\='ansi-term\\='.
 NAME is the buffer name (ansi-term prefix and suffix it with \\='*\\=')"
   (let* ((term-buffer-process nil)
-         (initial-window (selected-window))
          (term-buffer-name (ansi-term command name))
          (term-buffer (get-buffer term-buffer-name)))
     (when term-buffer
       (setq term-buffer-process (get-buffer-process term-buffer)))
+
     (when term-buffer-process
       (when pathaction-after-create-buffer-hook
         (with-current-buffer term-buffer
           (run-hooks 'pathaction-after-create-buffer-hook)))
+
       (with-current-buffer term-buffer
-        (setq pathaction--enabled t)
-        (setq pathaction--initial-window initial-window))
+        (setq pathaction--enabled t))
+
       (set-process-sentinel term-buffer-process
                             (lambda (_process event)
                               (when (string-prefix-p "finished" event)
