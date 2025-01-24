@@ -1,4 +1,4 @@
-;;; pathaction.el --- Execute the pathaction command-line tool from Emacs  -*- lexical-binding: t; -*-
+;;; pathaction.el --- Execute the pathaction.yaml rules from your editor -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2025 James Cherti | https://www.jamescherti.com/contact/
 
@@ -39,15 +39,15 @@
   "Determines whether the pathaction window is closed after execution.
 If non-nil, the pathaction window will be closed once execution is complete.
 
-When the pathaction operation is performed in the same window, it switches
+If the pathaction operation is performed in the same window, it switches
 back to the previously displayed buffer instead of closing it."
   :type 'boolean
   :group 'pathaction)
 
 (defvar pathaction-after-create-buffer-hook nil
   "Hooks to run after the pathaction buffer is created.
-This hook is executed from within the pathaction buffer, allowing for
-further customization or actions once the buffer is created.")
+This hook is executed within the pathaction buffer, allowing further
+customization or actions once the buffer is ready.")
 
 ;; Internal variables
 (defvar-local pathaction--initial-window nil)
@@ -64,7 +64,8 @@ The message is formatted with the provided arguments ARGS."
   (apply #'message (concat "[pathaction] Warning: " (car args)) (cdr args)))
 
 (defun pathaction-quit (&optional buffer)
-  "Quit pathaction that is running in BUFFER."
+  "Quit pathaction running in BUFFER.
+If BUFFER is not provided, uses the current buffer."
   (unless buffer
     (setq buffer (current-buffer)))
   (when pathaction--enabled
@@ -101,11 +102,9 @@ NAME is the buffer name (ansi-term prefix and suffix it with \\='*\\=')"
 
 (defun pathaction--buffer-path ()
   "Return the full path of the current buffer.
-
-Returns:
-- The directory path if the buffer is in `dired-mode',
-- The full path to the file if the buffer is visiting a file,
-- Nil if neither condition is met."
+If the buffer is in `dired-mode', returns the directory path.
+If the buffer is visiting a file, returns the full path to the file.
+Returns nil if neither condition is met."
   (cond ((and (fboundp 'dired-current-directory)
               (derived-mode-p 'dired-mode))
          ;; Return the directory name
@@ -127,7 +126,7 @@ Returns:
          (file-list-lines (split-string file-list "\n" t))
          (existing-files '())
          (selected-file nil))
-    ;; Filter the list to keep only existing files
+    ;; Filter out non-existing files
     (dolist (file file-list-lines)
       (when (and (not (string-empty-p file)) (file-exists-p file))
         (push file existing-files)))
@@ -144,10 +143,10 @@ Returns:
 ;;;###autoload
 (defun pathaction-run (tag)
   "Execute a pathaction action identified by TAG.
-
-Prompts the user for a TAG to specify the action. If invoked in a file buffer,
-uses the file's directory as the target; if invoked in a Dired buffer, uses the
-Dired directory. Signals an error if invoked in an unsupported context.
+Prompts the user for a TAG and executes the corresponding pathaction command.
+If invoked in a file buffer, uses the file's directory as the target.
+If invoked in a Dired buffer, uses the Dired directory.
+Signals an error if neither context is met.
 
 The command opens a terminal buffer named based on the TAG and the file or
 directory being processed."
@@ -167,9 +166,7 @@ directory being processed."
                               (shell-quote-argument directory)))))
       (when command
         (pathaction--ansi-term command
-                               (format "pathaction:%s-%s"
-                                       tag
-                                       base-name))))))
+                               (format "pathaction:%s-%s" tag base-name))))))
 
 (provide 'pathaction)
 ;;; pathaction.el ends here
