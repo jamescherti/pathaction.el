@@ -142,13 +142,12 @@ Returns nil if neither condition is met."
         (push file existing-files)))
 
     ;; Reverse to maintain original order
-    (setq existing-files (reverse existing-files))
-    (if existing-files
-        (progn
-          (setq selected-file (completing-read "Select a file: "
-                                               existing-files))
-          (find-file selected-file))
-      (error "No existing files available to edit"))))
+    (unless existing-files
+      (error "No existing files available to edit"))
+
+    (message "%s" existing-files)
+    (setq selected-file (completing-read "Select a file: " existing-files))
+    (find-file selected-file)))
 
 ;;;###autoload
 (defun pathaction-run (tag)
