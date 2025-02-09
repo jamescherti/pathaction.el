@@ -163,7 +163,8 @@ directory being processed."
   (let ((file-name (pathaction--buffer-path)))
     (unless file-name
       (error "The command cannot be executed in the current mode"))
-    (let* ((directory (file-name-directory file-name))
+    (let* ((switch-to-buffer-obey-display-actions t)
+           (directory (file-name-directory file-name))
            (base-name (file-name-nondirectory file-name))
            (command (when directory
                       (concat "pathaction"
