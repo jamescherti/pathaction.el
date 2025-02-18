@@ -68,8 +68,8 @@ To configure `pathaction` to open its window under the current one, you can use 
 Here's the code to do this:
 ``` emacs-lisp
 (add-to-list 'display-buffer-alist '("\\*pathaction:"
-                                       (display-buffer-at-bottom)
-                                       (window-height . 0.33)))
+                                     (display-buffer-at-bottom)
+                                     (window-height . 0.33)))
 ```
 
 ## Author and License
