@@ -161,11 +161,13 @@ The command opens a terminal buffer named based on the TAG and the file or
 directory being processed."
   (interactive "sTag: main")
   (let ((file-name (pathaction--buffer-path)))
+    (unless file-name
+      (error
+       "The pathaction command cannot be executed from non-file visiting buffers"))
+
     (unless (executable-find "pathaction")
       (user-error "'pathaction' command not found in $PATH"))
 
-    (unless file-name
-      (error "The command cannot be executed in the current mode"))
     (let* ((switch-to-buffer-obey-display-actions t)
            (directory (file-name-directory file-name))
            (base-name (file-name-nondirectory file-name))
