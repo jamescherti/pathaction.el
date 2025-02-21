@@ -83,4 +83,5 @@ This program is free software: you can redistribute it and/or modify it under th
 ## Links
 
 - Emacs package: [pathaction.el @GitHub](https://github.com/jamescherti/pathaction.el)
-- Command-line tool (requirement): [pathaction](https://github.com/jamescherti/pathaction)
+- The `pathaction` command-line tool (requirement): [pathaction](https://github.com/jamescherti/pathaction)
+- For Vim users: [vim-pathaction](https://github.com/jamescherti/vim-pathaction), a Vim plugin that allows executing the `pathaction` command-line tool directly from Vim.
