@@ -101,6 +101,8 @@ To disable the confirmation prompt from `save-some-buffers`, use the following c
 
 This will disable all interactive prompts when saving buffers using `save-some-buffers`.
 
+**Customizing `save-some-buffers`:** The `save-some-buffers` function can be customized by setting `save-some-buffers-default-predicate` to a predicate function that returns nil for files that should not be automatically saved.
+
 ## Author and License
 
 The *pathaction* Emacs package has been written by [James Cherti](https://www.jamescherti.com/) and is distributed under terms of the GNU General Public License version 3, or, at your choice, any later version.
