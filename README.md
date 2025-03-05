@@ -59,9 +59,9 @@ To edit the `pathaction.yaml` file, use the following function, which will promp
 (pathaction-edit)
 ```
 
-## Frequently Asked Questions
+## Customization
 
-## How to make pathaction open a window under the current one?
+## Making pathaction open a window under the current one?
 
 To configure `pathaction` to open its window under the current one, you can use the `display-buffer-alist` variable to customize how the `pathaction` buffer is displayed. Specifically, you can use the `display-buffer-at-bottom` action, which will display the buffer in a new window at the bottom of the current frame.
 
@@ -71,6 +71,35 @@ Here's the code to do this:
                                      (display-buffer-at-bottom)
                                      (window-height . 0.33)))
 ```
+
+## Hooks
+
+- `pathaction-before-run-hook`: This hook is executed by `pathaction-run` before the `pathaction` command is executed. By default, it calls the `save-some-buffers` function to prompt saving any modified buffers:
+  ```emacs-lisp
+  (setq pathaction-before-run-hook '(save-some-buffers))
+  ```
+- `pathaction-after-create-buffer-hook`: This hook is executed after the pathaction buffer is created. It runs from within the pathaction buffer, enabling further customization or actions once the buffer is available.
+
+## Preventing save-some-buffers from asking the user if they really want to save the current buffer
+
+By default, `pathaction-before-run-hook` triggers `save-some-buffers` to ensure that all buffers are saved before executing actions or commands that impact the current buffer or any other buffer being edited.
+
+By default, `save-some-buffers` requests user confirmation.
+
+To disable the confirmation prompt from `save-some-buffers`, use the following configuration:
+```emacs-lisp
+(defun my-save-some-buffers ()
+  "Prevent `save-some-buffers' from prompting by passing 1 to it."
+  (save-some-buffers 1))
+
+;; Remove: `save-some-buffers'
+(remove-hook 'pathaction-before-run-hook #'save-some-buffers)
+
+;; Add: `my-save-some-buffers'
+(add-hook 'pathaction-before-run-hook #'my-save-some-buffers)
+```
+
+This will disable all interactive prompts when saving buffers using `save-some-buffers`.
 
 ## Author and License
 

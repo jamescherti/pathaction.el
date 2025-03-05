@@ -53,10 +53,18 @@ Defaults to `ansi-term'.
   of the buffer as the second argument.
   Example: (function-name command buffername)")
 
-(defvar pathaction-after-create-buffer-hook nil
+(defcustom pathaction-before-run-hook '(save-some-buffers)
+  "Hooks to run before `pathaction-run' executes the `pathaction` command.
+By default, it calls `save-some-buffers'."
+  :group 'pathaction
+  :type 'hook)
+
+(defcustom pathaction-after-create-buffer-hook nil
   "Hooks to run after the pathaction buffer is created.
 This hook is executed from the pathaction buffer, allowing further
-customization or actions once the buffer is ready.")
+customization or actions once the buffer is ready."
+  :group 'pathaction
+  :type 'hook)
 
 ;; Internal variables
 (defvar-local pathaction--enabled nil)
@@ -167,6 +175,8 @@ directory being processed."
 
     (unless (executable-find "pathaction")
       (user-error "'pathaction' command not found in $PATH"))
+
+    (run-hooks 'pathaction-before-run-hook)
 
     (let* ((switch-to-buffer-obey-display-actions t)
            (directory (file-name-directory file-name))
