@@ -53,9 +53,15 @@ Defaults to `ansi-term'.
   of the buffer as the second argument.
   Example: (function-name command buffername)")
 
-(defcustom pathaction-before-run-hook '(save-some-buffers)
-  "Hooks to run before `pathaction-run' executes the `pathaction` command.
-By default, it calls `save-some-buffers'."
+(defun pathaction--save-buffer ()
+  "Save the current buffer if it is visiting a file."
+  (let ((file-name (buffer-file-name (buffer-base-buffer)))
+        (save-silently t))
+    (when file-name
+      (save-buffer))))
+
+(defcustom pathaction-before-run-hook '(pathaction--save-buffer)
+  "Hooks to run before `pathaction-run' executes the `pathaction` command."
   :group 'pathaction
   :type 'hook)
 

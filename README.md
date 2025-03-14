@@ -80,28 +80,20 @@ Here's the code to do this:
   ```
 - `pathaction-after-create-buffer-hook`: This hook is executed after the pathaction buffer is created. It runs from within the pathaction buffer, enabling further customization or actions once the buffer is available.
 
-## Preventing save-some-buffers from asking the user if they really want to save the current buffer
+## Saving all buffers before executing pathaction
 
-By default, `pathaction-before-run-hook` triggers `save-some-buffers` to ensure that all buffers are saved before executing actions or commands that impact the current buffer or any other buffer being edited.
+By default, `pathaction-before-run-hook` only calls a function to save the current buffer before executing actions or commands that affect the current or any other edited buffer.
 
-By default, `save-some-buffers` requests user confirmation.
-
-To disable the confirmation prompt from `save-some-buffers`, use the following configuration:
+To make `pathaction` save all buffers, use the following configuration:
 ```emacs-lisp
 (defun my-save-some-buffers ()
   "Prevent `save-some-buffers' from prompting by passing 1 to it."
-  (save-some-buffers 1))
+  (save-some-buffers))
 
-;; Remove: `save-some-buffers'
-(remove-hook 'pathaction-before-run-hook #'save-some-buffers)
-
-;; Add: `my-save-some-buffers'
 (add-hook 'pathaction-before-run-hook #'my-save-some-buffers)
 ```
 
-This will disable all interactive prompts when saving buffers using `save-some-buffers`.
-
-**Customizing `save-some-buffers`:** The `save-some-buffers` function can be customized by setting `save-some-buffers-default-predicate` to a predicate function that returns nil for files that should not be automatically saved.
+(If you want to prevent `save-some-buffers` from prompting the user before saving, replace `(save-some-buffers)` with `(save-some-buffers t)`.)
 
 ## Author and License
 
