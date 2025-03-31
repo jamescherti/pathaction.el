@@ -85,18 +85,16 @@ The message is formatted with the provided arguments ARGS."
 The message is formatted with the provided arguments ARGS."
   (apply #'message (concat "[pathaction] Warning: " (car args)) (cdr args)))
 
-(defun pathaction-quit (&optional buffer)
-  "Quit pathaction running in BUFFER.
-If BUFFER is not provided, uses the current buffer."
+(defun pathaction-quit (buffer)
+  "Quit pathaction running in BUFFER."
   (when pathaction--enabled
-    (unless buffer
-      (setq buffer (current-buffer)))
+    (when (buffer-live-p buffer)
+      (when (eq buffer (window-buffer))
+        (when (and pathaction-close-window-after-execution
+                   (> (length (window-list)) 1))
+          (delete-window)))
 
-    (when (and pathaction-close-window-after-execution
-               (> (length (window-list)) 1))
-      (delete-window))
-
-    (kill-buffer buffer)))
+      (kill-buffer buffer))))
 
 (defun pathaction--ansi-term (command name term-function)
   "Run COMMAND using \\='ansi-term\\='.
@@ -121,8 +119,7 @@ TERM-FUNCTION is the function that executes a terminal."
       (set-process-sentinel term-buffer-process
                             (lambda (_process event)
                               (when (string-prefix-p "finished" event)
-                                (with-current-buffer term-buffer
-                                  (pathaction-quit))))))))
+                                (pathaction-quit term-buffer)))))))
 
 (defun pathaction--buffer-path ()
   "Return the full path of the current buffer.
