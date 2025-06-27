@@ -126,18 +126,17 @@ TERM-FUNCTION is the function that executes a terminal."
 If the buffer is in `dired-mode', returns the directory path.
 If the buffer is visiting a file, returns the full path to the file.
 Returns nil if neither condition is met."
-  (cond ((and (fboundp 'dired-current-directory)
-              (derived-mode-p 'dired-mode))
-         ;; Return the directory name
-         default-directory)
+  (cond
+   (t
+    (let ((file-name (buffer-file-name (buffer-base-buffer))))
+      (if file-name
+          ;; Return the file name
+          file-name
+        ;; Return nil if no condition is met
+        nil)))
 
-        (t
-         (let ((file-name (buffer-file-name (buffer-base-buffer))))
-           (if file-name
-               ;; Return the file name
-               file-name
-             ;; Return nil if no condition is met
-             nil)))))
+   (t
+    default-directory)))
 
 ;;;###autoload
 (defun pathaction-edit ()
