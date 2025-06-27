@@ -129,7 +129,7 @@ Returns nil if neither condition is met."
   (cond ((and (fboundp 'dired-current-directory)
               (derived-mode-p 'dired-mode))
          ;; Return the directory name
-         (dired-current-directory))
+         default-directory)
 
         (t
          (let ((file-name (buffer-file-name (buffer-base-buffer))))
