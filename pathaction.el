@@ -114,6 +114,12 @@ TERM-FUNCTION is the function that executes a terminal."
           (run-hooks 'pathaction-after-create-buffer-hook)))
 
       (with-current-buffer term-buffer
+        (setq-local mode-line-format nil)
+        (setq-local scroll-margin 0)
+        (setq-local scroll-conservatively 0)
+        (setq-local term-suppress-hard-newline t)
+        (setq-local show-trailing-whitespace nil)
+        (setq-local display-line-numbers nil)
         (setq pathaction--enabled t))
 
       (set-process-sentinel term-buffer-process
