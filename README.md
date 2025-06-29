@@ -25,7 +25,11 @@ To install `pathaction` with `straight.el`:
   :straight (pathaction
              :type git
              :host github
-             :repo "jamescherti/pathaction.el"))
+             :repo "jamescherti/pathaction.el")
+  :config
+  (add-to-list 'display-buffer-alist '("\\*pathaction:"
+                                       (display-buffer-at-bottom)
+                                       (window-height . 0.33))))
 ```
 
 ### Installing with use-package and :vc (Built-in feature in Emacs version >= 30)
@@ -36,7 +40,11 @@ To install `pathaction` with `use-package` and `:vc` (Emacs >= 30):
 (use-package pathaction
   :ensure t
   :vc (:url "https://github.com/jamescherti/pathaction.el"
-       :rev :newest))
+       :rev :newest)
+  :config
+  (add-to-list 'display-buffer-alist '("\\*pathaction:"
+                                         (display-buffer-at-bottom)
+                                         (window-height . 0.33))))
 ```
 
 ## Usage
