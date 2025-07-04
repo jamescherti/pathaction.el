@@ -132,17 +132,17 @@ TERM-FUNCTION is the function that executes a terminal."
 If the buffer is in `dired-mode', returns the directory path.
 If the buffer is visiting a file, returns the full path to the file.
 Returns nil if neither condition is met."
-  (cond
-   (t
-    (let ((file-name (buffer-file-name (buffer-base-buffer))))
+  (let ((file-name (buffer-file-name (buffer-base-buffer))))
+    (cond
+     (file-name
       (if file-name
           ;; Return the file name
           file-name
         ;; Return nil if no condition is met
-        nil)))
+        nil))
 
-   (t
-    default-directory)))
+     (t
+      default-directory))))
 
 ;;;###autoload
 (defun pathaction-edit ()
@@ -179,7 +179,7 @@ directory being processed."
   (let ((file-name (pathaction--buffer-path)))
     (unless file-name
       (error
-       "The pathaction command cannot be executed from non-file visiting buffers"))
+       "Unsupported buffer type: unable to determine associated file path"))
 
     (unless (executable-find "pathaction")
       (user-error "'pathaction' command not found in $PATH"))
