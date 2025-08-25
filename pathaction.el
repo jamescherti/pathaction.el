@@ -196,7 +196,7 @@ directory being processed."
                               "--tag "
                               (shell-quote-argument tag)
                               " "
-                              (shell-quote-argument directory)))))
+                              file-name))))
       (when command
         (pathaction--ansi-term command
                                (format "pathaction:%s-%s" tag base-name)
