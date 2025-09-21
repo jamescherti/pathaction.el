@@ -1,7 +1,7 @@
 # pathaction.el - Execute the pathaction command-line tool from Emacs
 ![Build Status](https://github.com/jamescherti/pathaction.el/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/github/license/jamescherti/pathaction.el)
-![](https://raw.githubusercontent.com/jamescherti/pathaction.el/main/.images/made-for-gnu-emacs.svg)
+![](https://jamescherti.com/misc/made-for-gnu-emacs.svg)
 
 Execute pathaction.yaml rules using the pathaction command-line tool.
 
