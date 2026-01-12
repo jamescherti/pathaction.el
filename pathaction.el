@@ -175,7 +175,7 @@ Signals an error if neither context is met.
 
 The command opens a terminal buffer named based on the TAG and the file or
 directory being processed."
-  (interactive "sTag:")
+  (interactive "sTag: ")
   (let ((file-name (pathaction--buffer-path)))
     (unless file-name
       (error
