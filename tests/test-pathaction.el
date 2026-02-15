@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2025-2026 James Cherti | https://www.jamescherti.com/contact/
 
-;; Author: James Cherti
+;; Author: James Cherti <https://www.jamescherti.com/contact/>
 ;; Version: 1.0.0
 ;; URL: https://github.com/jamescherti/pathaction.el
 ;; Keywords: convenience
