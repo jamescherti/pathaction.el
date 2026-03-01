@@ -23,7 +23,27 @@
 ;; along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;; Execute pathaction.yaml rules using pathaction
+;; The pathaction Emacs package provides an interface for executing
+;; `.pathaction.yaml' rules directly from Emacs through the `pathaction'
+;; command-line tool.
+;;
+;; The pathaction command-line tool evaluates a target file or directory against
+;; a declarative rule set defined in `.pathaction.yaml' and runs the associated
+;; command automatically. By passing a path as an argument, actions are resolved
+;; and executed according to matching rules.
+;;
+;; The rule set is written in YAML and supports Jinja2 templating, enabling
+;; dynamic command construction based on the target path. This separates
+;; configuration from execution logic and offers a flexible framework for
+;; automating file and directory operations.
+;;
+;; Links:
+;; ------
+;; - The pathaction.el Emacs package:
+;;   https://github.com/jamescherti/pathaction.el/
+;;
+;; - Pathaction cli:
+;;   https://github.com/jamescherti/pathaction
 
 ;;; Code:
 
@@ -61,7 +81,7 @@ Defaults to `ansi-term'.
       (save-buffer))))
 
 (defcustom pathaction-before-run-hook '(pathaction--save-buffer)
-  "Hooks to run before `pathaction-run' executes the `pathaction` command."
+  "Hooks to run before `pathaction-run' executes the `pathaction' command."
   :group 'pathaction
   :type 'hook)
 
@@ -117,7 +137,10 @@ TERM-FUNCTION is the function that executes a terminal."
         (setq-local mode-line-format nil)
         (setq-local scroll-margin 0)
         (setq-local scroll-conservatively 0)
-        (setq-local term-suppress-hard-newline t)
+        (with-no-warnings
+          ;; Ignore warning:
+          ;; Assignment to free variable `term-suppress-hard-newline'
+          (setq-local term-suppress-hard-newline t))
         (setq-local show-trailing-whitespace nil)
         (setq-local display-line-numbers nil)
         (setq pathaction--enabled t))
@@ -133,16 +156,10 @@ If the buffer is in `dired-mode', returns the directory path.
 If the buffer is visiting a file, returns the full path to the file.
 Returns nil if neither condition is met."
   (let ((file-name (buffer-file-name (buffer-base-buffer))))
-    (cond
-     (file-name
-      (if file-name
-          ;; Return the file name
-          file-name
-        ;; Return nil if no condition is met
-        nil))
-
-     (t
-      default-directory))))
+    (if file-name
+        ;; Return the file name
+        file-name
+      default-directory)))
 
 ;;;###autoload
 (defun pathaction-edit ()
@@ -157,7 +174,6 @@ Returns nil if neither condition is met."
       (when (and (not (string-empty-p file)) (file-exists-p file))
         (push file existing-files)))
 
-    ;; Reverse to maintain original order
     (unless existing-files
       (error "No existing files available to edit"))
 
@@ -190,17 +206,17 @@ directory being processed."
            (directory (file-name-directory file-name))
            (base-name (file-name-nondirectory file-name))
            (command (when directory
-                      (concat "pathaction"
-                              " "
-                              "--confirm-after "
-                              "--tag "
+                      (format "pathaction --confirm-after --tag %s %s"
                               (shell-quote-argument tag)
-                              " "
-                              file-name))))
+                              (shell-quote-argument file-name)))))
+      ;; Silence warning:
+      ;;  Unused lexical variable `switch-to-buffer-obey-display-actions'
+      (ignore switch-to-buffer-obey-display-actions)
       (when command
         (pathaction--ansi-term command
                                (format "pathaction:%s-%s" tag base-name)
                                pathaction-term-function)))))
 
 (provide 'pathaction)
+
 ;;; pathaction.el ends here

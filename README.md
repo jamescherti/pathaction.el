@@ -3,9 +3,11 @@
 ![License](https://img.shields.io/github/license/jamescherti/pathaction.el)
 ![](https://jamescherti.com/misc/made-for-gnu-emacs.svg)
 
-Execute pathaction.yaml rules using the pathaction command-line tool.
+The pathaction Emacs package provides an interface for executing `.pathaction.yaml` rules directly from Emacs through the `pathaction` command-line tool.
 
-(The [pathaction](https://github.com/jamescherti/pathaction) command-line tool enables the execution of specific commands on targeted files or directories. Its key advantage lies in its flexibility, allowing users to handle various types of files simply by passing the file or directory as an argument to the `pathaction` tool. The tool uses a `.pathaction.yaml` rule-set file to determine which command to execute. Additionally, Jinja2 templating can be employed in the rule-set file to further customize the commands.)
+The [pathaction](https://github.com/jamescherti/pathaction) command-line tool evaluates a target file or directory against a declarative rule set defined in `.pathaction.yaml` and runs the associated command automatically. By passing a path as an argument, actions are resolved and executed according to matching rules.
+
+The rule set is written in YAML and supports Jinja2 templating, enabling dynamic command construction based on the target path. This separates configuration from execution logic and offers a flexible framework for automating file and directory operations.
 
 ## Requirements
 
