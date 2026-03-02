@@ -15,38 +15,19 @@ The rule set is written in YAML and supports Jinja2 templating, enabling dynamic
 
 ## Installation
 
-### Install with straight (Emacs version < 30)
+To install **pathaction** from MELPA:
 
-To install `pathaction` with `straight.el`:
+1. If you haven't already done so, [add MELPA repository to your Emacs configuration](https://melpa.org/#/getting-started).
 
-1. It if hasn't already been done, [add the straight.el bootstrap code](https://github.com/radian-software/straight.el?tab=readme-ov-file#getting-started) to your init file.
-2. Add the following code to the Emacs init file:
+2. Add the following code to your Emacs init file to install **pathaction** from MELPA:
+
 ```emacs-lisp
 (use-package pathaction
   :ensure t
-  :straight (pathaction
-             :type git
-             :host github
-             :repo "jamescherti/pathaction.el")
   :config
   (add-to-list 'display-buffer-alist '("\\*pathaction:"
                                        (display-buffer-at-bottom)
                                        (window-height . 0.33))))
-```
-
-### Installing with use-package and :vc (Built-in feature in Emacs version >= 30)
-
-To install `pathaction` with `use-package` and `:vc` (Emacs >= 30):
-
-``` emacs-lisp
-(use-package pathaction
-  :ensure t
-  :vc (:url "https://github.com/jamescherti/pathaction.el"
-       :rev :newest)
-  :config
-  (add-to-list 'display-buffer-alist '("\\*pathaction:"
-                                         (display-buffer-at-bottom)
-                                         (window-height . 0.33))))
 ```
 
 ## Usage
