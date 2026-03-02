@@ -6,7 +6,7 @@
 ;; Version: 1.0.0
 ;; URL: https://github.com/jamescherti/pathaction.el
 ;; Keywords: convenience
-;; Package-Requires: ((emacs "24.1"))
+;; Package-Requires: ((emacs "25.1"))
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; This file is free software; you can redistribute it and/or modify

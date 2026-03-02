@@ -6,7 +6,7 @@
 ;; Version: 1.0.0
 ;; URL: https://github.com/jamescherti/pathaction.el
 ;; Keywords: convenience
-;; Package-Requires: ((emacs "24.4"))
+;; Package-Requires: ((emacs "25.1"))
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; This file is free software; you can redistribute it and/or modify
@@ -47,6 +47,8 @@
 
 ;;; Code:
 
+(require 'seq)
+
 (defgroup pathaction nil
   "Execute pathaction.yaml rules using pathaction."
   :group 'pathaction
@@ -64,19 +66,30 @@ back to the previously displayed buffer instead of closing it."
   :type 'boolean
   :group 'pathaction)
 
-(defvar pathaction-term-function #'ansi-term
+(defun pathaction--default-ansi-term (command name)
+  "Default function to run COMMAND in `ansi-term` named NAME."
+  (let ((term-buffer (ansi-term shell-file-name name)))
+    (process-send-string (get-buffer-process term-buffer)
+                         (concat command "\n"))
+    term-buffer))
+
+(defvar pathaction-term-function #'pathaction--default-ansi-term
   "The function used to create and execute the terminal.
-Defaults to `ansi-term'.
+Defaults to `pathaction--default-ansi-term'.
 
 - This function should return the terminal buffer.
 - This function takes the command to execute as the first argument and the name
   of the buffer as the second argument.
   Example: (function-name command buffername)")
 
+;; Silence warnings
+(defvar term-suppress-hard-newline)
+(defvar switch-to-buffer-obey-display-actions)
+
 (defun pathaction--save-buffer ()
   "Save the current buffer if it is visiting a file."
   (let ((file-name (buffer-file-name (buffer-base-buffer)))
-        (save-silently t))
+        (inhibit-message t))
     (when file-name
       (save-buffer))))
 
@@ -107,18 +120,18 @@ The message is formatted with the provided arguments ARGS."
 
 (defun pathaction-quit (buffer)
   "Quit pathaction running in BUFFER."
-  (when pathaction--enabled
-    (when (buffer-live-p buffer)
-      (when (eq buffer (window-buffer))
-        (when (and pathaction-close-window-after-execution
-                   (> (length (window-list)) 1))
-          (delete-window)))
-
+  (when (buffer-live-p buffer)
+    (when (buffer-local-value 'pathaction--enabled buffer)
+      (let ((win (get-buffer-window buffer)))
+        (when (and (window-live-p win)
+                   pathaction-close-window-after-execution
+                   (not (one-window-p t)))
+          (delete-window win)))
       (kill-buffer buffer))))
 
-(defun pathaction--ansi-term (command name term-function)
-  "Run COMMAND using \\='ansi-term\\='.
-NAME is the buffer name (ansi-term prefix and suffix it with \\='*\\=')
+(defun pathaction--run-using-terminal (command name term-function)
+  "Run COMMAND using the terminal opened by `pathaction-term-function'.
+NAME is the buffer name (prefix and suffix it with \\='*\\=')
 TERM-FUNCTION is the function that executes a terminal."
   (let* ((term-buffer-process nil)
          (term-buffer (funcall term-function command name)))
@@ -129,32 +142,28 @@ TERM-FUNCTION is the function that executes a terminal."
     (setq term-buffer-process (get-buffer-process term-buffer))
 
     (when term-buffer-process
-      (when pathaction-after-create-buffer-hook
-        (with-current-buffer term-buffer
-          (run-hooks 'pathaction-after-create-buffer-hook)))
-
       (with-current-buffer term-buffer
+        (run-hooks 'pathaction-after-create-buffer-hook)
         (setq-local mode-line-format nil)
         (setq-local scroll-margin 0)
         (setq-local scroll-conservatively 0)
-        (with-no-warnings
-          ;; Ignore warning:
-          ;; Assignment to free variable `term-suppress-hard-newline'
-          (setq-local term-suppress-hard-newline t))
+        (setq-local term-suppress-hard-newline t)
         (setq-local show-trailing-whitespace nil)
         (setq-local display-line-numbers nil)
         (setq pathaction--enabled t))
 
       (set-process-sentinel term-buffer-process
-                            (lambda (_process event)
-                              (when (string-prefix-p "finished" event)
-                                (pathaction-quit term-buffer)))))))
+                            (lambda (process _event)
+                              (when (and (buffer-live-p term-buffer)
+                                         (memq (process-status process)
+                                               '(exit signal)))
+                                (pathaction-quit (process-buffer process))))))))
 
 (defun pathaction--buffer-path ()
   "Return the full path of the current buffer.
-If the buffer is in `dired-mode', returns the directory path.
-If the buffer is visiting a file, returns the full path to the file.
-Returns nil if neither condition is met."
+If the buffer is a non-file visiting buffer (e.g., `dired'), returns the
+`default-directory' path.
+If the buffer is visiting a file, returns the full path to the file."
   (let ((file-name (buffer-file-name (buffer-base-buffer))))
     (if file-name
         ;; Return the file name
@@ -165,21 +174,21 @@ Returns nil if neither condition is met."
 (defun pathaction-edit ()
   "Edit the pathaction.yaml file."
   (interactive)
+
+  (unless (executable-find "pathaction")
+    (user-error "'pathaction' command not found in $PATH"))
+
   (let* ((file-list (shell-command-to-string "pathaction -l ."))
          (file-list-lines (split-string file-list "\n" t))
-         (existing-files '())
-         (selected-file nil))
-    ;; Filter out non-existing files
-    (dolist (file file-list-lines)
-      (when (and (not (string-empty-p file)) (file-exists-p file))
-        (push file existing-files)))
+         (existing-files (seq-filter (lambda (file)
+                                       (and (not (string-empty-p file))
+                                            (file-exists-p file)))
+                                     file-list-lines)))
 
     (unless existing-files
       (error "No existing files available to edit"))
 
-    (message "%s" existing-files)
-    (setq selected-file (completing-read "Select a file: " existing-files))
-    (find-file selected-file)))
+    (find-file (completing-read "Select a file: " existing-files))))
 
 ;;;###autoload
 (defun pathaction-run (tag)
@@ -187,16 +196,10 @@ Returns nil if neither condition is met."
 Prompts the user for a TAG and executes the corresponding pathaction command.
 If invoked in a file buffer, uses the file's directory as the target.
 If invoked in a Dired buffer, uses the Dired directory.
-Signals an error if neither context is met.
-
 The command opens a terminal buffer named based on the TAG and the file or
 directory being processed."
   (interactive "sTag: ")
   (let ((file-name (pathaction--buffer-path)))
-    (unless file-name
-      (error
-       "Unsupported buffer type: unable to determine associated file path"))
-
     (unless (executable-find "pathaction")
       (user-error "'pathaction' command not found in $PATH"))
 
@@ -204,18 +207,17 @@ directory being processed."
 
     (let* ((switch-to-buffer-obey-display-actions t)
            (directory (file-name-directory file-name))
-           (base-name (file-name-nondirectory file-name))
+           (base-name (file-name-nondirectory (directory-file-name file-name)))
            (command (when directory
                       (format "pathaction --confirm-after --tag %s %s"
                               (shell-quote-argument tag)
                               (shell-quote-argument file-name)))))
-      ;; Silence warning:
-      ;;  Unused lexical variable `switch-to-buffer-obey-display-actions'
-      (ignore switch-to-buffer-obey-display-actions)
+
       (when command
-        (pathaction--ansi-term command
-                               (format "pathaction:%s-%s" tag base-name)
-                               pathaction-term-function)))))
+        (pathaction--run-using-terminal
+         command
+         (format "pathaction:%s-%s" tag base-name)
+         pathaction-term-function)))))
 
 (provide 'pathaction)
 
