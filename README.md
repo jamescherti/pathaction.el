@@ -1,9 +1,9 @@
-# pathaction.el - Execute the pathaction command-line tool from Emacs
+# pathaction.el - Execute commands on any files directly from Emacs by applying rule definitions through the `pathaction` command-line tool
 ![Build Status](https://github.com/jamescherti/pathaction.el/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/github/license/jamescherti/pathaction.el)
 ![](https://jamescherti.com/misc/made-for-gnu-emacs.svg)
 
-The pathaction Emacs package provides an interface for executing `.pathaction.yaml` rules directly from Emacs through the `pathaction` command-line tool.
+The **pathaction** Emacs package provides an interface for executing `.pathaction.yaml` rules directly from Emacs through the `pathaction` command-line tool.
 
 The [pathaction](https://github.com/jamescherti/pathaction) command-line tool evaluates a target file or directory against a declarative rule set defined in `.pathaction.yaml` and runs the associated command automatically. By passing a path as an argument, actions are resolved and executed according to matching rules.
 
