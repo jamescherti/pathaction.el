@@ -66,8 +66,13 @@ back to the previously displayed buffer instead of closing it."
   :type 'boolean
   :group 'pathaction)
 
+(defcustom pathaction-keep-buffer-when-process-running t
+  "If non-nil, keep hidden pathaction buffers if they have an active process."
+  :type 'boolean
+  :group 'pathaction)
+
 (defun pathaction--default-ansi-term (command name)
-  "Default function to run COMMAND in `ansi-term` named NAME."
+  "Default function to run COMMAND in `ansi-term' named NAME."
   (let ((term-buffer (ansi-term shell-file-name name)))
     (process-send-string (get-buffer-process term-buffer)
                          (concat command "; exit\n"))
@@ -107,6 +112,9 @@ customization or actions once the buffer is ready."
 ;; Internal variables
 (defvar-local pathaction--enabled nil)
 
+(defvar pathaction--active-buffers nil
+  "List of active pathaction buffers.")
+
 (defun pathaction--message (&rest args)
   "Display a message with '[pathaction]' prepended.
 The message is formatted with the provided arguments ARGS."
@@ -117,16 +125,45 @@ The message is formatted with the provided arguments ARGS."
 The message is formatted with the provided arguments ARGS."
   (apply #'message (concat "[pathaction] Warning: " (car args)) (cdr args)))
 
+(defun pathaction--kill-hidden-pathaction-buffers ()
+  "Kill pathaction buffers that are no longer displayed in any window."
+  (let ((window-configuration-change-hook nil) ; Prevents an infinite loop
+        (kept-buffers nil))
+    (dolist (buf pathaction--active-buffers)
+      (when (buffer-live-p buf)
+        (let* ((process (get-buffer-process buf))
+               (has-active-process (and process (process-live-p process)))
+               (is-visible (or (get-buffer-window buf 'visible)
+                               (and (bound-and-true-p tab-bar-mode)
+                                    (fboundp 'tab-bar-get-buffer-tab)
+                                    (funcall 'tab-bar-get-buffer-tab buf t nil)))))
+          (if (or is-visible
+                  (and pathaction-keep-buffer-when-process-running
+                       has-active-process))
+              (push buf kept-buffers)
+            (when process
+              (set-process-query-on-exit-flag process nil))
+            (kill-buffer buf)))))
+    (setq pathaction--active-buffers kept-buffers)
+    (unless pathaction--active-buffers
+      (remove-hook 'window-configuration-change-hook
+                   #'pathaction--kill-hidden-pathaction-buffers))))
+
 (defun pathaction-quit (buffer)
   "Quit pathaction running in BUFFER."
   (when (buffer-live-p buffer)
     (when (buffer-local-value 'pathaction--enabled buffer)
-      (let ((win (get-buffer-window buffer)))
+      (let ((win (get-buffer-window buffer 'visible)))
         (when (and (window-live-p win)
                    pathaction-close-window-after-execution
                    (not (one-window-p t)))
           (delete-window win)))
-      (kill-buffer buffer))))
+      (kill-buffer buffer)))
+  (setq pathaction--active-buffers
+        (seq-filter #'buffer-live-p pathaction--active-buffers))
+  (unless pathaction--active-buffers
+    (remove-hook 'window-configuration-change-hook
+                 #'pathaction--kill-hidden-pathaction-buffers)))
 
 (defun pathaction--run-using-terminal (command name term-function)
   "Run COMMAND using the terminal opened by `pathaction-term-function'.
@@ -150,6 +187,8 @@ TERM-FUNCTION is the function that executes a terminal."
         (setq-local show-trailing-whitespace nil)
         (setq-local display-line-numbers nil)
         (setq pathaction--enabled t))
+
+      (push term-buffer pathaction--active-buffers)
 
       (set-process-sentinel term-buffer-process
                             (lambda (process _event)
@@ -213,6 +252,8 @@ directory being processed."
                               (shell-quote-argument file-name)))))
       (ignore switch-to-buffer-obey-display-actions)
       (when command
+        (add-hook 'window-configuration-change-hook
+                  #'pathaction--kill-hidden-pathaction-buffers)
         (pathaction--run-using-terminal
          command
          (format "pathaction:%s-%s" tag base-name)
