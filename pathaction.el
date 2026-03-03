@@ -84,7 +84,6 @@ Defaults to `pathaction--default-ansi-term'.
 
 ;; Silence warnings
 (defvar term-suppress-hard-newline)
-(defvar switch-to-buffer-obey-display-actions)
 
 (defun pathaction--save-buffer ()
   "Save the current buffer if it is visiting a file."
@@ -212,7 +211,7 @@ directory being processed."
                       (format "pathaction --confirm-after --tag %s %s"
                               (shell-quote-argument tag)
                               (shell-quote-argument file-name)))))
-
+      (ignore switch-to-buffer-obey-display-actions)
       (when command
         (pathaction--run-using-terminal
          command
