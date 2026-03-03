@@ -70,7 +70,7 @@ back to the previously displayed buffer instead of closing it."
   "Default function to run COMMAND in `ansi-term` named NAME."
   (let ((term-buffer (ansi-term shell-file-name name)))
     (process-send-string (get-buffer-process term-buffer)
-                         (concat command "\n"))
+                         (concat command "; exit\n"))
     term-buffer))
 
 (defvar pathaction-term-function #'pathaction--default-ansi-term
