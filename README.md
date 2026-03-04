@@ -1,4 +1,4 @@
-# Emacs package: pathaction.el - A Emacs package for executing `pathaction`, the universal Makefile for the entire filesystem
+# pathaction.el - A Emacs package for executing `pathaction`, the universal Makefile for the entire filesystem
 
 ![Build Status](https://github.com/jamescherti/pathaction.el/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/github/license/jamescherti/pathaction.el)
@@ -6,9 +6,13 @@
 
 The **pathaction** Emacs package provides an interface for executing `.pathaction.yaml` rules directly from Emacs through the `pathaction` command-line tool.
 
-The [pathaction](https://github.com/jamescherti/pathaction) command-line tool evaluates a target file or directory against a declarative rule set defined in `.pathaction.yaml` and runs the associated command automatically. By passing a path as an argument, actions are resolved and executed according to matching rules.
+The [pathaction](https://github.com/jamescherti/pathaction) command-line tool is a flexible command-line tool for running commands on files and directories. Just pass a file path as an argument, and it handles the rest, whether you're working with code, media, or configurations.
 
-The rule set is written in YAML and supports Jinja2 templating, enabling dynamic command construction based on the target path. This separates configuration from execution logic and offers a flexible framework for automating file and directory operations.
+Think of `pathaction` like a Makefile for your entire filesystem. It uses a `.pathaction.yaml` file to figure out which command to run, and you can even use Jinja2 templating to make those commands dynamic. You can also use tags to define multiple actions for the exact same file type, like setting up one tag to run a script, and another to debug it.
+
+This tool is for software developers who manage multiple projects across diverse ecosystems and want to eliminate the cognitive load of switching between different build tools, environment configurations, and deployment methods. Just run one single command on any file and trust that it gets handled correctly.
+
+If this package helps your workflow, please show your support by **⭐ starring pathaction.el on GitHub** to help more software developers discover its benefits.
 
 ## Requirements
 
