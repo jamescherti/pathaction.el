@@ -1,4 +1,4 @@
-# pathaction.el - A Emacs package for executing `pathaction`, the universal Makefile for the entire filesystem
+# pathaction.el - An Emacs package for executing `pathaction`, the universal Makefile for the entire filesystem
 
 ![Build Status](https://github.com/jamescherti/pathaction.el/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/github/license/jamescherti/pathaction.el)
