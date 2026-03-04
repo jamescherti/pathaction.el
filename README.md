@@ -35,7 +35,7 @@ To install **pathaction** from MELPA:
 
 ## Usage
 
-### Allow the directory explicitly
+### Allow the directory
 
 By default, `pathaction` does not read rule-set files such as `.pathaction.yaml` from arbitrary directories. The target directory must be explicitly permitted.
 
