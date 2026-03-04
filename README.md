@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/github/license/jamescherti/pathaction.el)
 ![](https://jamescherti.com/misc/made-for-gnu-emacs.svg)
 
-The **pathaction.el** Emacs package provides an interface for executing `.pathaction.yaml` rules directly from Emacs through [pathaction cli](https://github.com/jamescherti/pathaction), a flexible tool for running commands on files and directories.
+The **pathaction.el** Emacs package provides an interface for executing `.pathaction.yaml` rules directly from Emacs through the [pathaction cli](https://github.com/jamescherti/pathaction), a flexible tool for running commands on files and directories.
 
 Think of `pathaction` like a Makefile for your entire filesystem. It uses a `.pathaction.yaml` file to figure out which command to run, and you can even use Jinja2 templating to make those commands dynamic. You can also use tags to define multiple actions for the exact same file type, like setting up one tag to run a script, and another to debug it.
 
@@ -14,7 +14,7 @@ If this package helps your workflow, please show your support by **⭐ starring 
 
 ## Requirements
 
-- The [pathaction](https://github.com/jamescherti/pathaction) command-line tool.
+- The [pathaction command-line tool](https://github.com/jamescherti/pathaction).
 
 ## Installation
 
