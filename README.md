@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/github/license/jamescherti/pathaction.el)
 ![](https://jamescherti.com/misc/made-for-gnu-emacs.svg)
 
-The **pathaction** Emacs package provides an interface for executing `.pathaction.yaml` rules directly from Emacs through the `pathaction` command-line tool.
+The **pathaction.el** Emacs package provides an interface for executing `.pathaction.yaml` rules directly from Emacs through the `pathaction` command-line tool.
 
 The [pathaction cli](https://github.com/jamescherti/pathaction) is a flexible command-line tool for running commands on files and directories. Just pass a file path as an argument, and it handles the rest, whether you're working with code, media, or configurations.
 
