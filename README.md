@@ -42,10 +42,10 @@ By default, `pathaction` does not read rule-set files such as `.pathaction.yaml`
 Run the following command to allow `pathaction` to read rule-set files from the project directory:
 
 ```
-$ pathaction --allow-dir ~/project
+pathaction --allow-dir ~/projects
 ```
 
-After this command completes, `.pathaction.yaml` files located in `~/project` will be recognized and processed.
+After this command completes, `.pathaction.yaml` files located in the `~/projects` directory will be recognized and processed.
 
 ### Run
 
