@@ -35,6 +35,18 @@ To install **pathaction** from MELPA:
 
 ## Usage
 
+### Allow the directory explicitly
+
+By default, `pathaction` does not read rule-set files such as `.pathaction.yaml` from arbitrary directories. The target directory must be explicitly permitted.
+
+Run the following command to allow `pathaction` to read rule-set files from the project directory:
+
+```
+$ pathaction --allow-dir ~/project
+```
+
+After this command completes, `.pathaction.yaml` files located in `~/project` will be recognized and processed.
+
 ### Run
 
 To execute the `pathaction` action that is tagged with `main`, you can call the following Emacs function:
