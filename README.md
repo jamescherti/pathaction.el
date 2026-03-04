@@ -6,7 +6,7 @@
 
 The **pathaction** Emacs package provides an interface for executing `.pathaction.yaml` rules directly from Emacs through the `pathaction` command-line tool.
 
-The [pathaction](https://github.com/jamescherti/pathaction) command-line tool is a flexible command-line tool for running commands on files and directories. Just pass a file path as an argument, and it handles the rest, whether you're working with code, media, or configurations.
+The [pathaction cli](https://github.com/jamescherti/pathaction) is a flexible command-line tool for running commands on files and directories. Just pass a file path as an argument, and it handles the rest, whether you're working with code, media, or configurations.
 
 Think of `pathaction` like a Makefile for your entire filesystem. It uses a `.pathaction.yaml` file to figure out which command to run, and you can even use Jinja2 templating to make those commands dynamic. You can also use tags to define multiple actions for the exact same file type, like setting up one tag to run a script, and another to debug it.
 
