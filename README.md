@@ -1,4 +1,5 @@
-# Emacs Package: pathaction.el - Execute commands on any files directly from Emacs by applying rule definitions through the `pathaction` cli
+# Emacs package: pathaction.el - A Emacs package for executing `pathaction`, the universal Makefile for the entire filesystem
+
 ![Build Status](https://github.com/jamescherti/pathaction.el/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/github/license/jamescherti/pathaction.el)
 ![](https://jamescherti.com/misc/made-for-gnu-emacs.svg)
