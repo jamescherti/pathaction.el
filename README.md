@@ -5,7 +5,7 @@
 
 The **pathaction.el** Emacs package provides an interface for executing `.pathaction.yaml` rules directly from Emacs through the [pathaction cli](https://github.com/jamescherti/pathaction), a flexible tool for running commands on files and directories.
 
-Think of `pathaction` like a Makefile for your entire filesystem. It uses a `.pathaction.yaml` file to figure out which command to run, and you can even use Jinja2 templating to make those commands dynamic. You can also use tags to define multiple actions for the exact same file type, like setting up one tag to run a script, and another to debug it.
+Think of `pathaction` like a Makefile for any file or directory in the filesystem. It uses a `.pathaction.yaml` file to figure out which command to run, and you can even use Jinja2 templating to make those commands dynamic. You can also use tags to define multiple actions for the exact same file type, like setting up one tag to run a script, and another to debug it.
 
 This tool is for software developers who manage multiple projects across diverse ecosystems and want to eliminate the cognitive load of switching between different build tools, environment configurations, and deployment methods. Just run one single command on any file and trust that it gets handled correctly.
 
@@ -54,13 +54,11 @@ To execute the `pathaction` action that is tagged with `main`, you can call the 
 - **`pathaction-run`**: This is the main function for triggering `pathaction` actions.
 - **`"main"`**: This is the tag used to identify a specific action. The tag you provide to the function determines which set of actions will be executed. In this case, `"main"` refers to the actions that are specifically tagged with this name.
 
-### Edit the pathaction.yaml file
+## Edit `.pathaction.yaml`
 
-To edit the `pathaction.yaml` file, use the following function, which will prompt you to select one of the `pathaction.yaml` files in the parent directories:
+To edit a `.pathaction.yaml` file located in a parent directory, run the command: `M-x pathaction-edit`.
 
-```emacs-lisp
-(pathaction-edit)
-```
+The command prompts for selection of one of the rule-set files found in the current directory or in one of its parent directories.
 
 ## Customization
 
@@ -108,7 +106,7 @@ This program is free software: you can redistribute it and/or modify it under th
 
 ## Links
 
-- [pathaction.el @GitHub](https://github.com/jamescherti/pathaction.el): Emacs package.
+- [pathaction.el](https://github.com/jamescherti/pathaction.el), an Emacs package that allows executing the `pathaction` command-line tool directly from Emacs.
 - The `pathaction` command-line tool (requirement): [pathaction cli](https://github.com/jamescherti/pathaction)
 - For Vim users: [vim-pathaction](https://github.com/jamescherti/vim-pathaction), a Vim plugin that allows executing the `pathaction` command-line tool directly from Vim.
 
