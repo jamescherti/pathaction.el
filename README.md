@@ -56,7 +56,7 @@ To execute the `pathaction` action that is tagged with `main`, you can call the 
 
 ## Edit `.pathaction.yaml`
 
-To edit a `.pathaction.yaml` file located in a parent directory, run the command: `M-x pathaction-edit`.
+To edit a `.pathaction.yaml` file located in a parent directory, run the command: `M-x pathaction-edit`
 
 The command prompts for selection of one of the rule-set files found in the current directory or in one of its parent directories.
 
