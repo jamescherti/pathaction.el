@@ -25,7 +25,6 @@ To install **pathaction** from MELPA:
 
 ```emacs-lisp
 (use-package pathaction
-  :ensure t
   :config
   (add-to-list 'display-buffer-alist '("\\*pathaction:"
                                        (display-buffer-at-bottom)
