@@ -90,14 +90,14 @@ Defaults to `pathaction--default-ansi-term'.
 ;; Silence warnings
 (defvar term-suppress-hard-newline)
 
-(defun pathaction--save-buffer ()
+(defun pathaction-save-buffer ()
   "Save the current buffer if it is visiting a file."
   (let ((file-name (buffer-file-name (buffer-base-buffer)))
         (inhibit-message t))
     (when file-name
       (save-buffer))))
 
-(defcustom pathaction-before-run-hook '(pathaction--save-buffer)
+(defcustom pathaction-before-run-hook '(pathaction-save-buffer)
   "Hooks to run before `pathaction-run' executes the `pathaction' command."
   :group 'pathaction
   :type 'hook)

@@ -74,26 +74,22 @@ Here's the code to do this:
 
 ## Hooks
 
-- `pathaction-before-run-hook`: This hook is executed by `pathaction-run` before the `pathaction` command is executed. By default, it calls the `save-some-buffers` function to prompt saving any modified buffers:
-  ```emacs-lisp
-  (setq pathaction-before-run-hook '(save-some-buffers))
-  ```
+- `pathaction-before-run-hook`: This hook is executed by `pathaction-run` before the `pathaction` command is executed.
 - `pathaction-after-create-buffer-hook`: This hook is executed after the pathaction buffer is created. It runs from within the pathaction buffer, enabling further customization or actions once the buffer is available.
 
 ## Saving all buffers before executing pathaction
 
-By default, `pathaction-before-run-hook` only calls a function to save the current buffer before executing actions or commands that affect the current or any other edited buffer.
+By default, `pathaction-before-run-hook` only calls the `pathaction-save-buffer` function to save the current buffer before executing actions or commands that affect the current or any other edited buffer.
 
 To make `pathaction` save all buffers, use the following configuration:
 ```emacs-lisp
 (defun my-save-some-buffers ()
   "Prevent `save-some-buffers' from prompting by passing 1 to it."
-  (save-some-buffers))
+  ;; The first argument means to save all buffers without prompting
+  (save-some-buffers t))
 
 (add-hook 'pathaction-before-run-hook #'my-save-some-buffers)
 ```
-
-(If you want to prevent `save-some-buffers` from prompting the user before saving, replace `(save-some-buffers)` with `(save-some-buffers t)`.)
 
 ## Author and License
 
