@@ -133,7 +133,7 @@ The message is formatted with the provided arguments ARGS."
       (when (buffer-live-p buf)
         (let* ((process (get-buffer-process buf))
                (has-active-process (and process (process-live-p process)))
-               (is-visible (or (get-buffer-window buf 'visible)
+               (is-visible (or (get-buffer-window buf 0)
                                (and (bound-and-true-p tab-bar-mode)
                                     (fboundp 'tab-bar-get-buffer-tab)
                                     (funcall 'tab-bar-get-buffer-tab buf t nil)))))
@@ -153,7 +153,7 @@ The message is formatted with the provided arguments ARGS."
   "Quit pathaction running in BUFFER."
   (when (buffer-live-p buffer)
     (when (buffer-local-value 'pathaction--enabled buffer)
-      (let ((win (get-buffer-window buffer 'visible)))
+      (let ((win (get-buffer-window buffer 0)))
         (when (and (window-live-p win)
                    pathaction-close-window-after-execution
                    (not (one-window-p t)))
