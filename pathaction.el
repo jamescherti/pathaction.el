@@ -91,10 +91,8 @@ back to the previously displayed buffer instead of closing it."
              (fboundp 'term-char-mode)
              (fboundp 'term-ansi-make-term))
     (let* ((inhibit-redisplay t)
-           (term-name (generate-new-buffer-name
-                       (concat "*" name "*")))
            (shell-args (list "-c" command))
-           (term-buffer (apply #'term-ansi-make-term term-name shell-file-name
+           (term-buffer (apply #'term-ansi-make-term name shell-file-name
                                nil shell-args)))
       (with-current-buffer term-buffer
         (term-mode)
@@ -108,12 +106,11 @@ back to the previously displayed buffer instead of closing it."
 (defun pathaction-vterm (command name)
   "Run COMMAND in `vterm' named NAME."
   (if (require 'vterm nil t)
-      (when (and (fboundp 'vterm))
+      (when (fboundp 'vterm)
         (let* ((inhibit-redisplay t)
+               ;; Override the shell to run the command directly
                (vterm-shell command)
-               (vterm-buffer-name (generate-new-buffer-name
-                                   (concat "*" name "*")))
-               (term-buffer (vterm vterm-buffer-name)))
+               (term-buffer (vterm name)))
           (ignore vterm-shell)
           (pop-to-buffer term-buffer)
           term-buffer))
@@ -124,9 +121,7 @@ back to the previously displayed buffer instead of closing it."
   (if (require 'eat nil t)
       (when (fboundp 'eat)
         (let* ((inhibit-redisplay t)
-               (eat-buffer-name (generate-new-buffer-name
-                                 (concat "*" name "*")))
-               (term-buffer (eat command eat-buffer-name)))
+               (term-buffer (eat command name)))
           (pop-to-buffer term-buffer)
           term-buffer))
     (error "eat is not available")))
@@ -235,8 +230,20 @@ The message is formatted with the provided arguments ARGS."
 
 (defun pathaction--run-using-terminal (command name term-function)
   "Run COMMAND using the terminal opened by `pathaction-term-function'.
-NAME is the buffer name (prefix and suffix it with \\='*\\=')
+NAME is the buffer name.
 TERM-FUNCTION is the function that executes a terminal."
+  (setq name (concat "*" name "*"))
+
+  ;; Kill buffer with the target name before proceeding
+  (let ((buffer (get-buffer name)))
+    (when (buffer-live-p buffer)
+      (with-current-buffer buffer
+        (let ((process (get-buffer-process buffer)))
+          (when process
+            (set-process-query-on-exit-flag process nil)))
+
+        (kill-buffer buffer))))
+
   (let* ((term-buffer-process nil)
          (term-buffer (funcall term-function command name)))
     (unless (buffer-live-p term-buffer)
