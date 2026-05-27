@@ -121,11 +121,13 @@ back to the previously displayed buffer instead of closing it."
 (defun pathaction-eat (command name)
   "Run COMMAND in `eat' named NAME."
   (if (require 'eat nil t)
-      (when (fboundp 'eat)
-        (let* ((inhibit-redisplay t)
-               (term-buffer (eat command name)))
-          (pop-to-buffer term-buffer)
-          term-buffer))
+      (if (fboundp 'eat-make)
+          (let* ((inhibit-redisplay t)
+                 (term-buffer (eat-make name pathaction-term-shell nil "-c"
+                                        command)))
+            (pop-to-buffer term-buffer)
+            term-buffer)
+        (error "Undefined: eat-make"))
     (error "eat is not available")))
 
 (defcustom pathaction-term-function #'pathaction-ansi-term
