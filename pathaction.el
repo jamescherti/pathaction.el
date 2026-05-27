@@ -71,7 +71,9 @@ back to the previously displayed buffer instead of closing it."
   :type 'boolean
   :group 'pathaction)
 
-(defvar term-escape-char)
+(eval-when-compile
+  (defvar term-escape-char)
+  (defvar vterm-shell))
 
 (defcustom pathaction-term-shell (or (bound-and-true-p explicit-shell-file-name)
                                      shell-file-name)
