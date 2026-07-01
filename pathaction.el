@@ -71,6 +71,12 @@ back to the previously displayed buffer instead of closing it."
   :type 'boolean
   :group 'pathaction)
 
+(defcustom pathaction-kill-hidden-buffers nil
+  "If non-nil, automatically kill pathaction buffers when they are hidden.
+When set to nil, hidden buffers are retained until manually killed."
+  :type 'boolean
+  :group 'pathaction)
+
 (eval-when-compile
   (defvar term-escape-char)
   (defvar vterm-shell))
@@ -192,28 +198,31 @@ The message is formatted with the provided arguments ARGS."
 
 (defun pathaction--kill-hidden-pathaction-buffers ()
   "Kill pathaction buffers that are no longer displayed in any window."
-  (let ((inhibit-redisplay t)
-        (window-configuration-change-hook nil) ; Prevents an infinite loop
-        (kept-buffers nil))
-    (dolist (buf pathaction--active-buffers)
-      (when (buffer-live-p buf)
-        (let* ((process (get-buffer-process buf))
-               (has-active-process (and process (process-live-p process)))
-               (is-visible (or (get-buffer-window buf 0)
-                               (and (bound-and-true-p tab-bar-mode)
-                                    (fboundp 'tab-bar-get-buffer-tab)
-                                    (funcall 'tab-bar-get-buffer-tab buf t nil)))))
-          (if (or is-visible
-                  (and pathaction-keep-buffer-when-process-running
-                       has-active-process))
-              (push buf kept-buffers)
-            (when process
-              (set-process-query-on-exit-flag process nil))
-            (kill-buffer buf)))))
-    (setq pathaction--active-buffers kept-buffers)
-    (unless pathaction--active-buffers
+  (if (not pathaction-kill-hidden-buffers)
       (remove-hook 'window-configuration-change-hook
-                   #'pathaction--kill-hidden-pathaction-buffers))))
+                   #'pathaction--kill-hidden-pathaction-buffers)
+    (let ((inhibit-redisplay t)
+          (window-configuration-change-hook nil) ; Prevents an infinite loop
+          (kept-buffers nil))
+      (dolist (buf pathaction--active-buffers)
+        (when (buffer-live-p buf)
+          (let* ((process (get-buffer-process buf))
+                 (has-active-process (and process (process-live-p process)))
+                 (is-visible (or (get-buffer-window buf 0)
+                                 (and (bound-and-true-p tab-bar-mode)
+                                      (fboundp 'tab-bar-get-buffer-tab)
+                                      (funcall 'tab-bar-get-buffer-tab buf t nil)))))
+            (if (or is-visible
+                    (and pathaction-keep-buffer-when-process-running
+                         has-active-process))
+                (push buf kept-buffers)
+              (when process
+                (set-process-query-on-exit-flag process nil))
+              (kill-buffer buf)))))
+      (setq pathaction--active-buffers kept-buffers)
+      (unless pathaction--active-buffers
+        (remove-hook 'window-configuration-change-hook
+                     #'pathaction--kill-hidden-pathaction-buffers)))))
 
 (defun pathaction-quit (buffer)
   "Quit pathaction running in BUFFER."
@@ -333,8 +342,9 @@ directory being processed."
                               (shell-quote-argument file-name)))))
       (ignore switch-to-buffer-obey-display-actions)
       (when command
-        (add-hook 'window-configuration-change-hook
-                  #'pathaction--kill-hidden-pathaction-buffers)
+        (when pathaction-kill-hidden-buffers
+          (add-hook 'window-configuration-change-hook
+                    #'pathaction--kill-hidden-pathaction-buffers))
         (pathaction--run-using-terminal
          command
          (format "pathaction:%s-%s" tag base-name)
