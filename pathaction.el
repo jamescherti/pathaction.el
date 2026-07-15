@@ -47,7 +47,11 @@
 
 ;;; Code:
 
+;;; Require
+
 (require 'seq)
+
+;;; Global variables
 
 (defgroup pathaction nil
   "Execute pathaction.yaml rules using pathaction."
@@ -87,6 +91,12 @@ When set to nil, hidden buffers are retained until manually killed."
   :type 'string
   :group 'pathaction)
 
+;;; Local variables
+
+(defvar vterm-shell)
+
+;;; Local functions
+
 (define-obsolete-function-alias
   'pathaction--default-ansi-term
   'pathaction-ansi-term
@@ -119,7 +129,6 @@ When set to nil, hidden buffers are retained until manually killed."
                ;; Override the shell to run the command directly
                (vterm-shell command)
                (term-buffer (vterm name)))
-          (ignore vterm-shell)
           (pop-to-buffer term-buffer)
           term-buffer))
     (error "vterm is not available")))
@@ -134,7 +143,7 @@ When set to nil, hidden buffers are retained until manually killed."
             (pop-to-buffer term-buffer)
             term-buffer)
         (error "Undefined: eat-make"))
-    (error "eat is not available")))
+    (error "`eat' is not available")))
 
 (defcustom pathaction-term-function #'pathaction-ansi-term
   "The function used to create and execute the terminal.
@@ -211,7 +220,7 @@ The message is formatted with the provided arguments ARGS."
                  (is-visible (or (get-buffer-window buf 0)
                                  (and (bound-and-true-p tab-bar-mode)
                                       (fboundp 'tab-bar-get-buffer-tab)
-                                      (funcall 'tab-bar-get-buffer-tab buf t nil)))))
+                                      (funcall #'tab-bar-get-buffer-tab buf t nil)))))
             (if (or is-visible
                     (and pathaction-keep-buffer-when-process-running
                          has-active-process))
@@ -298,6 +307,8 @@ If the buffer is visiting a file, returns the full path to the file."
         file-name
       default-directory)))
 
+;;; Global functions
+
 ;;;###autoload
 (defun pathaction-edit ()
   "Edit the pathaction.yaml file."
@@ -333,14 +344,12 @@ directory being processed."
 
     (run-hooks 'pathaction-before-run-hook)
 
-    (let* ((switch-to-buffer-obey-display-actions t)
-           (directory (file-name-directory file-name))
+    (let* ((directory (file-name-directory file-name))
            (base-name (file-name-nondirectory (directory-file-name file-name)))
            (command (when directory
                       (format "pathaction --confirm-after --tag %s %s"
                               (shell-quote-argument tag)
                               (shell-quote-argument file-name)))))
-      (ignore switch-to-buffer-obey-display-actions)
       (when command
         (when pathaction-kill-hidden-buffers
           (add-hook 'window-configuration-change-hook
