@@ -53,7 +53,7 @@ To execute the `pathaction` action that is tagged with `main`, you can call the 
 - **`pathaction-run`**: This is the main function for triggering `pathaction` actions.
 - **`"main"`**: This is the tag used to identify a specific action. The tag you provide to the function determines which set of actions will be executed. In this case, `"main"` refers to the actions that are specifically tagged with this name.
 
-## Edit `.pathaction.yaml`
+## Edit .pathaction.yaml
 
 To edit a `.pathaction.yaml` file located in a parent directory, run the command: `M-x pathaction-edit`
 
@@ -70,6 +70,7 @@ The shell used by the terminal emulator to execute the `pathaction` command (e.g
 #### `pathaction-term-function` (Default: `#'pathaction-ansi-term`)
 
 The function used to create and execute the terminal. By default, it uses `#'pathaction-ansi-term`. You can customize this to use faster, third-party terminal emulators like:
+
 - `#'pathaction-eat`
 - `#'pathaction-vterm`
 
@@ -130,6 +131,7 @@ This program is free software: you can redistribute it and/or modify it under th
 - For Vim users: [vim-pathaction](https://github.com/jamescherti/vim-pathaction), a Vim plugin that allows executing the `pathaction` command-line tool directly from Vim.
 
 Other Emacs packages by the same author:
+
 - [compile-angel.el](https://github.com/jamescherti/compile-angel.el): **Speed up Emacs!** This package guarantees that all .el files are both byte-compiled and native-compiled, which significantly speeds up Emacs.
 - [outline-indent.el](https://github.com/jamescherti/outline-indent.el): An Emacs package that provides a minor mode that enables code folding and outlining based on indentation levels for various indentation-based text files, such as YAML, Python, and other indented text files.
 - [easysession.el](https://github.com/jamescherti/easysession.el): Easysession is lightweight Emacs session manager that can persist and restore file editing buffers, indirect buffers/clones, Dired buffers, the tab-bar, and the Emacs frames (with or without the Emacs frames size, width, and height).
