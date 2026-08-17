@@ -63,26 +63,26 @@ The command prompts for selection of one of the rule-set files found in the curr
 
 ### Configuration Options
 
-#### `pathaction-term-shell` (Default: `explicit-shell-file-name` or `shell-file-name`)
+#### pathaction-term-shell (Default: explicit-shell-file-name or shell-file-name)
 
 The shell used by the terminal emulator to execute the `pathaction` command (e.g., `"/bin/bash"` or `"/bin/zsh"`).
 
-#### `pathaction-term-function` (Default: `#'pathaction-ansi-term`)
+#### pathaction-term-function (Default: #'pathaction-ansi-term)
 
 The function used to create and execute the terminal. By default, it uses `#'pathaction-ansi-term`. You can customize this to use faster, third-party terminal emulators like:
 
 - `#'pathaction-eat`
 - `#'pathaction-vterm`
 
-#### `pathaction-cleanup-buffer-at-process-exit` (Default: `t`)
+#### pathaction-cleanup-buffer-at-process-exit (Default: t)
 
 If non-nil, automatically closes the terminal and kills the buffer when the process exits. Set this to `nil` if you want the window to remain open so you can inspect the output.
 
-#### `pathaction-close-window-after-execution` (Default: `t`)
+#### pathaction-close-window-after-execution (Default: t)
 
 If non-nil, the pathaction window will be closed once execution is complete.
 
-#### `pathaction-keep-buffer-when-process-running` (Default: `t`)
+#### pathaction-keep-buffer-when-process-running (Default: t)
 
 If non-nil, keeps hidden pathaction buffers alive if they have an active process.
 
