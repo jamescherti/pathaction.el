@@ -5,7 +5,7 @@
 ;; Author: James Cherti <https://www.jamescherti.com/contact/>
 ;; Version: 1.0.2
 ;; URL: https://github.com/jamescherti/pathaction.el
-;; Keywords: convenience
+;; Keywords: tools, processes, convenience
 ;; Package-Requires: ((emacs "25.1"))
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -55,7 +55,7 @@
 
 (defgroup pathaction nil
   "Execute pathaction.yaml rules using pathaction."
-  :group 'pathaction
+  :group 'tools
   :prefix "pathaction-"
   :link '(url-link
           :tag "Github"
