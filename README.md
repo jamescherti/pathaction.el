@@ -1,4 +1,4 @@
-# Emacs Package: pathaction.el - An Emacs plugin for executing `pathaction`, the universal Makefile, for any file in your filesystem
+# Emacs Package: pathaction.el - An Emacs package for executing pathaction, the universal Makefile, for any file in your filesystem
 ![Build Status](https://github.com/jamescherti/pathaction.el/actions/workflows/melpazoid.yml/badge.svg)
 ![License](https://img.shields.io/github/license/jamescherti/pathaction.el)
 ![](https://jamescherti.com/misc/made-for-gnu-emacs.svg)
