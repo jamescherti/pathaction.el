@@ -320,7 +320,8 @@ If the buffer is visiting a file, returns the full path to the file."
   (let* ((file-list (shell-command-to-string "pathaction -l ."))
          (file-list-lines (split-string file-list "\n" t))
          (existing-files (seq-filter (lambda (file)
-                                       (and (not (string-empty-p file))
+                                       (and file
+                                            (not (string= file ""))
                                             (file-exists-p file)))
                                      file-list-lines)))
 
