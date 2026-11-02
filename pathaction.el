@@ -131,7 +131,7 @@ When set to nil, hidden buffers are retained until manually killed."
                (term-buffer (vterm name)))
           (pop-to-buffer term-buffer)
           term-buffer))
-    (error "vterm is not available")))
+    (user-error "vterm is not available")))
 
 (defun pathaction-eat (command name)
   "Run COMMAND in `eat' named NAME."
@@ -143,7 +143,7 @@ When set to nil, hidden buffers are retained until manually killed."
             (pop-to-buffer term-buffer)
             term-buffer)
         (error "Undefined: eat-make"))
-    (error "`eat' is not available")))
+    (user-error "`eat' is not available")))
 
 (defcustom pathaction-term-function #'pathaction-ansi-term
   "The function used to create and execute the terminal.
@@ -309,6 +309,8 @@ If the buffer is visiting a file, returns the full path to the file."
 
 ;;; Global functions
 
+(defvar vertico-sort-function)
+
 ;;;###autoload
 (defun pathaction-edit ()
   "Edit the pathaction.yaml file."
@@ -323,10 +325,13 @@ If the buffer is visiting a file, returns the full path to the file."
                                        (and file
                                             (not (string= file ""))
                                             (file-exists-p file)))
-                                     file-list-lines)))
+                                     file-list-lines))
+         ;; Prevent Vertico from sorting the files to preserve the order
+         ;; returned by `pathaction'.
+         (vertico-sort-function nil))
 
     (unless existing-files
-      (error "No existing files available to edit"))
+      (user-error "No existing files available to edit"))
 
     (find-file (completing-read "Select a file: " existing-files))))
 
