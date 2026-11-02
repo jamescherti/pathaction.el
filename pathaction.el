@@ -317,7 +317,9 @@ If the buffer is visiting a file, returns the full path to the file."
   (interactive)
   (unless (executable-find "pathaction")
     (user-error "'pathaction' command not found in $PATH"))
-  (let* ((file-name (buffer-file-name (buffer-base-buffer)))
+  (let* ((file-name (or (buffer-file-name (buffer-base-buffer))
+                        default-directory
+                        "."))
          (file-list (with-temp-buffer
                       (let ((status (process-file "pathaction" nil t nil
                                                   "-l" file-name)))
