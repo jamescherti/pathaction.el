@@ -313,41 +313,39 @@ If the buffer is visiting a file, returns the full path to the file."
 
 ;;;###autoload
 (defun pathaction-edit ()
-  "Edit an existing PathAction configuration file in listing order."
+  "Edit another existing PathAction configuration file in listing order."
   (interactive)
-  (unless (executable-find "pathaction")
-    (user-error "'pathaction' command not found in $PATH"))
-
-  (let* ((file-name (pathaction--buffer-path))
+  (let* ((file-name (buffer-file-name (buffer-base-buffer)))
          (target (or file-name
-                     default-directory
-                     ".")))
+                     default-directory)))
     (when (or (file-remote-p target)
               (file-remote-p default-directory))
       (user-error "Remote files and directories are not supported"))
 
-    (let* ((file-list (with-temp-buffer
-                        (let ((status (process-file "pathaction" nil t nil
-                                                    "-l" target)))
-                          (unless (and (integerp status)
-                                       (zerop status))
-                            (error
-                             "PathAction configuration listing failed (%s): %s"
-                             status (buffer-string)))
-                          (buffer-string))))
-           (file-list-lines (split-string file-list "\n" t))
-           (existing-files (seq-filter
-                            #'(lambda(file)
-                                (and (file-regular-p file)
-                                     (or (not file-name)
-                                         (not (file-equal-p file file-name)))))
-                            file-list-lines))
-           ;; Prevent Vertico from sorting the files to preserve the order
-           ;; returned by `pathaction'.
-           (vertico-sort-function nil))
+    (unless (executable-find "pathaction")
+      (user-error "`pathaction' command not found in $PATH"))
 
+    (unless target
+      (user-error "No target file or directory available"))
+
+    (let* ((file-list
+            (with-temp-buffer
+              (let ((status (process-file "pathaction" nil t nil "-l" target)))
+                (unless (and (integerp status) (zerop status))
+                  (error "[pathaction] Configuration listing failed (%s): %s"
+                         status (buffer-string)))
+                (buffer-string))))
+           (file-list-lines (split-string file-list "\n" t))
+           (existing-files
+            (seq-filter
+             (lambda (file)
+               (and (file-regular-p file)
+                    (or (not file-name)
+                        (not (file-equal-p file file-name)))))
+             file-list-lines))
+           (vertico-sort-function nil))
       (unless existing-files
-        (user-error "No existing .pathaction.yaml files available to edit"))
+        (user-error "No PathAction configuration files available to edit"))
 
       (find-file
        (completing-read "Select a file: " existing-files nil t
