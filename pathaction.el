@@ -317,41 +317,56 @@ If the buffer is visiting a file, returns the full path to the file."
   (interactive)
   (unless (executable-find "pathaction")
     (user-error "'pathaction' command not found in $PATH"))
-  (let* ((file-name (or (buffer-file-name (buffer-base-buffer))
-                        default-directory
-                        "."))
-         (file-list (with-temp-buffer
-                      (let ((status (process-file "pathaction" nil t nil
-                                                  "-l" file-name)))
-                        (unless (and (integerp status)
-                                     (zerop status))
-                          (error
-                           "PathAction configuration listing failed (%s): %s"
-                           status (buffer-string)))
-                        (buffer-string))))
-         (file-list-lines (split-string file-list "\n" t))
-         (existing-files (seq-filter #'file-exists-p file-list-lines))
-         ;; Prevent Vertico from sorting the files to preserve the order
-         ;; returned by `pathaction'.
-         (vertico-sort-function nil))
 
-    (unless existing-files
-      (user-error "No existing .pathaction.yaml files available to edit"))
+  (let* ((file-name (pathaction--buffer-path))
+         (target (or file-name
+                     default-directory
+                     ".")))
+    (when (or (file-remote-p target)
+              (file-remote-p default-directory))
+      (user-error "Remote files and directories are not supported"))
 
-    (find-file
-     (completing-read "Select a file: " existing-files nil t
-                      nil nil (car existing-files)))))
+    (let* ((file-list (with-temp-buffer
+                        (let ((status (process-file "pathaction" nil t nil
+                                                    "-l" target)))
+                          (unless (and (integerp status)
+                                       (zerop status))
+                            (error
+                             "PathAction configuration listing failed (%s): %s"
+                             status (buffer-string)))
+                          (buffer-string))))
+           (file-list-lines (split-string file-list "\n" t))
+           (existing-files (seq-filter
+                            #'(lambda(file)
+                                (and (file-regular-p file)
+                                     (or (not file-name)
+                                         (not (file-equal-p file file-name)))))
+                            file-list-lines))
+           ;; Prevent Vertico from sorting the files to preserve the order
+           ;; returned by `pathaction'.
+           (vertico-sort-function nil))
+
+      (unless existing-files
+        (user-error "No existing .pathaction.yaml files available to edit"))
+
+      (find-file
+       (completing-read "Select a file: " existing-files nil t
+                        nil nil (car existing-files))))))
 
 ;;;###autoload
 (defun pathaction-run (tag)
   "Execute a pathaction action identified by TAG.
-Prompts the user for a TAG and executes the corresponding pathaction command.
-If invoked in a file buffer, uses the file's directory as the target.
-If invoked in a Dired buffer, uses the Dired directory.
-The command opens a terminal buffer named based on the TAG and the file or
-directory being processed."
+Prompt for TAG and execute the corresponding pathaction command.
+If invoked in a file buffer, use the file's directory as the target.
+If invoked in a Dired buffer, use the Dired directory.
+Open a terminal buffer named based on TAG and the file or directory
+being processed."
   (interactive "sTag: ")
   (let ((file-name (pathaction--buffer-path)))
+    (when (or (file-remote-p file-name)
+              (file-remote-p default-directory))
+      (user-error "Remote files and directories are not supported"))
+
     (unless (executable-find "pathaction")
       (user-error "'pathaction' command not found in $PATH"))
 
