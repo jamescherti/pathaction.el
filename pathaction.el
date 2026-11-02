@@ -313,27 +313,32 @@ If the buffer is visiting a file, returns the full path to the file."
 
 ;;;###autoload
 (defun pathaction-edit ()
-  "Edit the pathaction.yaml file."
+  "Edit an existing PathAction configuration file in listing order."
   (interactive)
-
   (unless (executable-find "pathaction")
     (user-error "'pathaction' command not found in $PATH"))
-
-  (let* ((file-list (shell-command-to-string "pathaction -l ."))
+  (let* ((file-name (buffer-file-name (buffer-base-buffer)))
+         (file-list (with-temp-buffer
+                      (let ((status (process-file "pathaction" nil t nil
+                                                  "-l" file-name)))
+                        (unless (and (integerp status)
+                                     (zerop status))
+                          (error
+                           "PathAction configuration listing failed (%s): %s"
+                           status (buffer-string)))
+                        (buffer-string))))
          (file-list-lines (split-string file-list "\n" t))
-         (existing-files (seq-filter (lambda (file)
-                                       (and file
-                                            (not (string= file ""))
-                                            (file-exists-p file)))
-                                     file-list-lines))
+         (existing-files (seq-filter #'file-exists-p file-list-lines))
          ;; Prevent Vertico from sorting the files to preserve the order
          ;; returned by `pathaction'.
          (vertico-sort-function nil))
 
     (unless existing-files
-      (user-error "No existing files available to edit"))
+      (user-error "No existing .pathaction.yaml files available to edit"))
 
-    (find-file (completing-read "Select a file: " existing-files))))
+    (find-file
+     (completing-read "Select a file: " existing-files nil t
+                      nil nil (car existing-files)))))
 
 ;;;###autoload
 (defun pathaction-run (tag)
