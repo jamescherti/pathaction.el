@@ -337,12 +337,7 @@ If the buffer is visiting a file, returns the full path to the file."
                 (buffer-string))))
            (file-list-lines (split-string file-list "\n" t))
            (existing-files
-            (seq-filter
-             (lambda (file)
-               (and (file-regular-p file)
-                    (or (not file-name)
-                        (not (file-equal-p file file-name)))))
-             file-list-lines))
+            (seq-filter #'file-regular-p file-list-lines))
            (vertico-sort-function nil))
       (unless existing-files
         (user-error "No PathAction configuration files available to edit"))
