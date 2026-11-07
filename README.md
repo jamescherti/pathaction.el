@@ -4,7 +4,7 @@
 ![](https://jamescherti.com/misc/made-for-gnu-emacs.svg)
 
 - Author: James Cherti <[https://www.jamescherti.com/](https://www.jamescherti.com/)>
-- License: GPL
+- License: GPL 3.0 or later
 
 The **[pathaction.el](https://github.com/jamescherti/pathaction.el)** Emacs package provides an interface for executing `.pathaction.yaml` rules directly from Emacs through the [pathaction cli](https://github.com/jamescherti/pathaction), a flexible tool for running commands on files and directories.
 
