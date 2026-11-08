@@ -309,8 +309,6 @@ If the buffer is visiting a file, returns the full path to the file."
 
 ;;; Global functions
 
-(defvar vertico-sort-function)
-
 ;;;###autoload
 (defun pathaction-edit ()
   "Edit another existing PathAction configuration file in listing order."
@@ -338,13 +336,20 @@ If the buffer is visiting a file, returns the full path to the file."
            (file-list-lines (split-string file-list "\n" t))
            (existing-files
             (seq-filter #'file-regular-p file-list-lines))
-           (vertico-sort-function nil))
+           (collection (lambda (string pred action)
+                         (if (eq action 'metadata)
+                             '(metadata (display-sort-function . identity)
+                                        (cycle-sort-function . identity)
+                                        (category . file))
+                           (complete-with-action action existing-files string pred)))))
       (unless existing-files
         (user-error "No PathAction configuration files available to edit"))
 
-      (find-file
-       (completing-read "Select a file: " existing-files nil t
-                        nil nil (car existing-files))))))
+      (let ((file (completing-read "Select a file: " collection nil t
+                                   nil nil (car existing-files))))
+        (if (and file (not (string= file "")))
+            (find-file file)
+          (user-error "No file selected"))))))
 
 ;;;###autoload
 (defun pathaction-run (tag)
@@ -355,6 +360,9 @@ If invoked in a Dired buffer, use the Dired directory.
 Open a terminal buffer named based on TAG and the file or directory
 being processed."
   (interactive "sTag: ")
+  (when (string= tag "")
+    (user-error "Tag cannot be empty"))
+
   (let ((file-name (pathaction--buffer-path)))
     (when (or (file-remote-p file-name)
               (file-remote-p default-directory))
@@ -368,7 +376,7 @@ being processed."
     (let* ((directory (file-name-directory file-name))
            (base-name (file-name-nondirectory (directory-file-name file-name)))
            (command (when directory
-                      (format "pathaction --confirm-after --tag %s %s"
+                      (format "pathaction --confirm-after --tag %s -- %s"
                               (shell-quote-argument tag)
                               (shell-quote-argument file-name)))))
       (when command
